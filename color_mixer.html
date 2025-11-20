@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Color Tap - Mix Your Perfect Shade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700;900&family=Bebas+Neue&display=swap');
+
+        :root {
+            --bg-dark: #0d0d0d;
+            --bg-card: #1a1a1a;
+            --bg-input: #242424;
+            --gold: #d4af37;
+            --gold-light: #f4e4b7;
+            --gold-dark: #b8952e;
+            --text-primary: #f5f5f5;
+            --text-muted: #999;
+            --border: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: var(--text-primary);
+            min-height: 100vh; 
+            overflow-x: hidden;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 1rem 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 0.25rem;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+    position: relative;
+    z-index: 10;
+}
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            
+        }
+
+        @media (min-width: 1024px) {
+            .workspace {
+                grid-template-columns: 400px 1fr;
+                max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+            }
+        }
+
+        .card {
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .ingredients-list {
+            height: 280px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding-right: 0.5rem;
+        }
+
+        .ingredients-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ingredients-list::-webkit-scrollbar-track {
+            background: var(--bg-input);
+            border-radius: 10px;
+        }
+
+        .ingredients-list::-webkit-scrollbar-thumb {
+            background: var(--gold-dark);
+            border-radius: 10px;
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 0.6rem;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover {
+            border-color: var(--gold-dark);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+        }
+
+        .color-swatch {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-input {
+            flex: 1;
+            min-width: 100px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: 'Inter', monospace;
+            transition: all 0.2s;
+        }
+
+        .color-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+        }
+
+        .color-input.invalid {
+            border-color: #ef4444;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.3rem;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--gold);
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            border: 2px dashed var(--border);
+            color: var(--gold);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .add-btn:hover {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .display-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .display-area {
+                flex-direction: row;
+                gap: 3rem; 
+            }
+        }
+
+        .glass-container {
+            position: relative;
+            width: 180px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            transform: scale(1.2);
+            margin: 0 auto; 
+        }
+
+        .beer-glass {
+            width: 150px;
+            height: 220px;
+            position: relative;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 8px 8px 30px 30px;
+            border: 3px solid rgba(255, 255, 255, 0.15);
+            border-top: 4px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            box-shadow: 
+                inset 0 4px 8px rgba(0, 0, 0, 0.3),
+                0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s ease;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 85%;
+            background: #ffc34d;
+            transition: background 0.6s ease;
+        }
+
+        .foam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            background: linear-gradient(to bottom, #fff8e1 0%, #ffe9b3 100%);
+            border-radius: 50% 50% 0 0;
+            box-shadow: 
+                0 2px 8px rgba(255, 255, 255, 0.3),
+                inset 0 -2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-handle {
+            position: absolute;
+            right: -20px;
+            top: 100px;
+            width: 35px;
+            height: 160px;
+            border: 5px solid rgba(255, 255, 255, 0.15);
+            border-left: none;
+            border-radius: 0 50% 50% 0;
+        }
+
+        .glass-base {
+            width: 90px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-top: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-shadow {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 18px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
+            transition: all 0.6s ease;
+        }
+
+        .shine-effect {
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .shaking .shine-effect {
+            animation: shine 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes shine {
+            0% { 
+                left: -50%; 
+                opacity: 0;
+            }
+            50% { 
+                opacity: 1;
+            }
+            100% { 
+                left: 100%; 
+                opacity: 0;
+            }
+        }
+
+        .results-panel {
+            margin-top: 20px;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid var(--gold-dark);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-width: 250px;
+        }
+
+        .results-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-row:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .result-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-family: 'Inter', monospace;
+            color: var(--gold-light);
+            font-weight: 600;
+            font-size: 0.9rem; 
+        }
+
+        .copy-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+            color: var(--bg-dark);
+            border-color: var(--gold);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .copy-btn.error {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .mix-section {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .mix-btn {
+            font-family: 'Bebas Neue', sans-serif;
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+            border: none;
+            color: var(--bg-dark);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .mix-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(212, 175, 55, 0.5);
+        }
+
+        .mix-btn:active {
+            transform: translateY(0);
+        }
+
+        .mix-btn i {
+            font-size: 1.5rem;
+        }
+
+        .native-picker {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+    
+    <header class="header">
+        <h1 class="logo">The Color Tap</h1>
+        <p class="tagline">Mix Your Perfect Shade</p>
+    </header>
+
+    <div class="container">
+        <div class="workspace">
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-flask"></i>
+                    Ingredients
+                </h2>
+                
+                <div class="ingredients-list" id="ingredientsList">
+                </div>
+                
+                <button class="add-btn" id="addIngredientBtn">
+                    <i class="fas fa-plus"></i>
+                    Add 
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="display-area">
+                    <div class="glass-container">
+                        <div class="beer-glass" id="beerGlass">
+                            <div class="shine-effect"></div>
+                            <div class="foam"></div>
+                            <div class="liquid" id="liquid"></div>
+                        </div>
+                        <div class="glass-handle"></div>
+                        <div class="glass-shadow" id="glassShadow"></div>
+                    </div>
+
+                    <div class="results-panel">
+                        <h3 class="results-title">
+                            <i class="fas fa-code"></i>
+                            Color Data
+                        </h3>
+                        
+                        <div id="resultsDisplay">
+                            <div class="result-row">
+                                <span class="result-label">RGB</span>
+                                <span class="result-value">—</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">HEX</span>
+                                <span class="result-value">—</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">HSL</span>
+                                <span class="result-value">—</span>
+                            </div>
+                        </div>
+
+                        <div class="copy-buttons">
+                            <button class="copy-btn" data-format="rgb">
+                                <i class="fas fa-copy"></i>
+                                Copy RGB
+                            </button>
+                            <button class="copy-btn" data-format="hex">
+                                <i class="fas fa-copy"></i>
+                                Copy HEX
+                            </button>
+                            <button class="copy-btn" data-format="hsl">
+                                <i class="fas fa-copy"></i>
+                                Copy HSL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mix-section">
+            <button class="mix-btn" id="mixBtn">
+                <i class="fas fa-cocktail"></i>
+                Shake & Mix
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let ingredientCounter = 0;
+        let currentColors = {
+            rgb: '—',
+            hex: '—',
+            hsl: '—'
+        };
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : null;
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = Math.round(x).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+        }
+
+        function parseColorInput(str) {
+            str = str.trim();
+            
+            if (/^#?[0-9A-Fa-f]{6}$/.test(str)) {
+                return hexToRgb(str.startsWith('#') ? str : '#' + str);
+            }
+            
+            const rgbMatch = str.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+            if (rgbMatch) {
+                return [
+                    Math.min(255, parseInt(rgbMatch[1])),
+                    Math.min(255, parseInt(rgbMatch[2])),
+                    Math.min(255, parseInt(rgbMatch[3]))
+                ];
+            }
+            
+            return null;
+        }
+
+        function createIngredient(initialColor = '#8b5cf6') {
+            ingredientCounter++;
+            const id = `ingredient-${ingredientCounter}`;
+            
+            const item = document.createElement('div');
+            item.className = 'ingredient-item';
+            item.id = id;
+            
+            item.innerHTML = `
+                <div class="color-swatch" data-id="${id}" style="background: ${initialColor}"></div>
+                <input type="text" 
+                       class="color-input" 
+                       value="${initialColor.toUpperCase()}" 
+                       placeholder="#FF5733 or 255, 87, 51"
+                       data-id="${id}">
+                <input type="color" 
+                       class="native-picker" 
+                       value="${initialColor}"
+                       data-id="${id}">
+                <button class="icon-btn" data-action="pick" data-id="${id}">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button class="icon-btn" data-action="delete" data-id="${id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            document.getElementById('ingredientsList').appendChild(item);
+            updateAllPreviews();
+        }
+
+        function updateAllPreviews() {
+            const inputs = document.querySelectorAll('.color-input');
+            inputs.forEach(input => {
+                const id = input.dataset.id;
+                const swatch = document.querySelector(`.color-swatch[data-id="${id}"]`);
+                const rgb = parseColorInput(input.value);
+                
+                if (rgb) {
+                    input.classList.remove('invalid');
+                    swatch.style.background = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                } else {
+                    input.classList.add('invalid');
+                    swatch.style.background = '#333';
+                }
+            });
+        }
+
+        function mixColors() {
+            const inputs = document.querySelectorAll('.color-input');
+            const validColors = [];
+            
+            inputs.forEach(input => {
+                const rgb = parseColorInput(input.value);
+                if (rgb) validColors.push(rgb);
+            });
+            
+            if (validColors.length === 0) {
+                updateResults(null);
+                return;
+            }
+            
+            const avg = validColors.reduce((acc, color) => {
+                acc[0] += color[0];
+                acc[1] += color[1];
+                acc[2] += color[2];
+                return acc;
+            }, [0, 0, 0]).map(v => Math.round(v / validColors.length));
+            
+            updateResults(avg);
+            animateGlass();
+        }
+
+        function updateResults(rgb) {
+            const liquid = document.getElementById('liquid');
+            const shadow = document.getElementById('glassShadow');
+            const display = document.getElementById('resultsDisplay');
+            
+            if (!rgb) {
+                currentColors = { rgb: '—', hex: '—', hsl: '—' };
+                liquid.style.background = '#ffc34d';
+                shadow.style.background = 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 70%)';
+            } else {
+                const [r, g, b] = rgb;
+                const hex = rgbToHex(r, g, b);
+                const hsl = rgbToHsl(r, g, b);
+                
+                currentColors = {
+                    rgb: `${r}, ${g}, ${b}`,
+                    hex: hex.toUpperCase(),
+                    hsl: `${hsl[0]}°, ${hsl[1]}%, ${hsl[2]}%`
+                };
+                
+                liquid.style.background = `rgb(${r}, ${g}, ${b})`;
+                shadow.style.background = `radial-gradient(ellipse at center, rgba(${r}, ${g}, ${b}, 0.4) 0%, transparent 70%)`;
+            }
+            
+            display.innerHTML = `
+                <div class="result-row">
+                    <span class="result-label">RGB</span>
+                    <span class="result-value">${currentColors.rgb}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">HEX</span>
+                    <span class="result-value">${currentColors.hex}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">HSL</span>
+                    <span class="result-value">${currentColors.hsl}</span>
+                </div>
+            `;
+        }
+
+        function animateGlass() {
+            const glass = document.getElementById('beerGlass');
+            glass.classList.remove('shaking');
+            void glass.offsetWidth;
+            glass.classList.add('shaking');
+            setTimeout(() => glass.classList.remove('shaking'), 600);
+        }
+
+        function copyToClipboard(format, btn) {
+            const value = currentColors[format];
+            
+            if (value === '—') {
+                btn.classList.add('error');
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> No Data';
+                setTimeout(() => {
+                    btn.classList.remove('error');
+                    btn.innerHTML = `<i class="fas fa-copy"></i> Copy ${format.toUpperCase()}`;
+                }, 1500);
+                return;
+            }
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = value;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = `<i class="fas fa-copy"></i> Copy ${format.toUpperCase()}`;
+                }, 1500);
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+            
+            if (action === 'delete') {
+                document.getElementById(id).remove();
+                updateAllPreviews();
+            } else if (action === 'pick') {
+                const picker = document.querySelector(`.native-picker[data-id="${id}"]`);
+                picker.click();
+            } else if (btn.id === 'addIngredientBtn') {
+                createIngredient();
+            } else if (btn.id === 'mixBtn') {
+                mixColors();
+            } else if (btn.classList.contains('copy-btn')) {
+                copyToClipboard(btn.dataset.format, btn);
+            }
+        });
+
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('color-input')) {
+                updateAllPreviews();
+            } else if (e.target.classList.contains('native-picker')) {
+                const id = e.target.dataset.id;
+                const input = document.querySelector(`.color-input[data-id="${id}"]`);
+                input.value = e.target.value.toUpperCase();
+                updateAllPreviews();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('color-swatch')) {
+                const id = e.target.dataset.id;
+                const picker = document.querySelector(`.native-picker[data-id="${id}"]`);
+                picker.click();
+            }
+        });
+
+        createIngredient('#10b981');
+        createIngredient('#ffffff');
+    </script>
+</body>
+</html>
